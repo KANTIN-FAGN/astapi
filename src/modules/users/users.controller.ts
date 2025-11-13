@@ -23,8 +23,6 @@ export class UsersController {
     }
 
     @Post()
-    @UseGuards(JwtAuthGuard)
-    @ApiBearerAuth()
     @ApiCreatedResponse({type: UserEntity})
     async create(@Body() createUserDto: CreateUserDto) {
         return new UserEntity(await this.usersService.create(createUserDto));

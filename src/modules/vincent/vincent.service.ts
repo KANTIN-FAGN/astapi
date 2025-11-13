@@ -1,41 +1,31 @@
-import {BadRequestException, Injectable, NotFoundException} from '@nestjs/common';
-import {CreateVincentDto} from './dto/create-vincent.dto';
-import {UpdateVincentDto} from './dto/update-vincent.dto';
-import {PrismaService} from 'src/prisma/prisma.service';
-import {join} from "path";
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { CreateVincentDto } from './dto/create-vincent.dto';
+import { UpdateVincentDto } from './dto/update-vincent.dto';
+import { PrismaService } from 'src/prisma/prisma.service';
+import { join } from 'path';
 import * as fs from 'fs-extra';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class VincentService {
-    constructor(private prisma: PrismaService) {
-    }
+    constructor(private prisma: PrismaService) {}
 
     async create(createVincentDto: CreateVincentDto, file: Express.Multer.File) {
-        const {title, description} = createVincentDto;
+        const { title, description } = createVincentDto;
 
-        if (!file || !file.mimetype.startsWith('image/')) {
-            throw new BadRequestException(
-                'Invalid file format, only images are allowed.',
-            );
+        if (!title) throw new BadRequestException('Titre requis');
+        if (!file || !file.mimetype?.startsWith('image/')) {
+            throw new BadRequestException('Format de fichier invalide, image requise');
         }
 
         const uploadDir = join(process.cwd(), 'uploads', 'vincent');
         const finalPath = join(uploadDir, file.filename);
 
-        const existingArticle = await this.prisma.photo.findUnique({
-            where: { title },
-        });
-        if (existingArticle) {
-            throw new BadRequestException(
-                `An Vincent with the title '${title}' already exists.`,
-            );
-        }
-
         try {
-            // S'assurer que le répertoire existe
-            await fs.ensureDir(uploadDir);
+            const existing = await this.prisma.photo.findUnique({ where: { title } });
+            if (existing) throw new BadRequestException(`Un Vincent intitulé '${title}' existe déjà`);
 
-            // Déplacer le fichier vers sa destination finale
+            await fs.ensureDir(uploadDir);
             await fs.move(file.path, finalPath);
 
             const article = await this.prisma.photo.create({
@@ -44,55 +34,90 @@ export class VincentService {
                     description,
                     imagePath: '/uploads/vincent/' + file.filename,
                 },
-                include: { author: true }, // inclure l’auteur dans la réponse de création
+                include: { author: true },
             });
 
             return article;
-        } catch (error) {
-            throw new BadRequestException(error.message);
+        } catch (e: any) {
+            // Nettoyage si move échoue partiellement (optionnel)
+            // if (await fs.pathExists(finalPath)) await fs.remove(finalPath);
+
+            if (e instanceof BadRequestException) throw e;
+            if (e instanceof Prisma.PrismaClientKnownRequestError) {
+                if (e.code === 'P2002') throw new BadRequestException('Titre déjà utilisé');
+                throw new BadRequestException(`Erreur base de données (${e.code})`);
+            }
+            throw new BadRequestException('Création Vincent impossible');
         }
     }
 
     async findAll(page: number, limit: number) {
-        const skip = (page - 1) * limit;
+        try {
+            const safePage = Math.max(1, Number(page) || 1);
+            const safeLimit = Math.min(100, Math.max(1, Number(limit) || 10));
+            const skip = (safePage - 1) * safeLimit;
 
-        const LimitNum = Number(limit);
+            const [data, total] = await this.prisma.$transaction([
+                this.prisma.photo.findMany({
+                    skip,
+                    take: safeLimit,
+                    orderBy: { createdAt: 'asc' },
+                    include: { author: true },
+                }),
+                this.prisma.photo.count(),
+            ]);
 
-
-        const [data, total] = await this.prisma.$transaction([
-            this.prisma.photo.findMany({
-                skip,
-                take: LimitNum,
-                orderBy: { createdAt: 'asc' },
-                include: {
-                    author: true,
-                }
-            }),
-            this.prisma.photo.count(),
-        ]);
-
-        return { data, total };
+            return { data, total, page: safePage, limit: safeLimit };
+        } catch (e: any) {
+            throw new BadRequestException('Récupération des Vincents impossible');
+        }
     }
 
-    findOne(id: number) {
-        return this.prisma.photo.findUnique({
-            where: { id },
-            include: { author: true }, // inclure l’auteur pour le détail
-        });
+    async findOne(id: number) {
+        try {
+            const item = await this.prisma.photo.findUnique({
+                where: { id },
+                include: { author: true },
+            });
+            if (!item) throw new NotFoundException('Vincent introuvable');
+            return item;
+        } catch (e: any) {
+            if (e instanceof NotFoundException) throw e;
+            throw new BadRequestException('Récupération du Vincent impossible');
+        }
     }
 
-    update(id: number, updateVincentDto: UpdateVincentDto) {
-        return this.prisma.photo.update({
-            where: { id },
-            data: updateVincentDto,
-            include: { author: true }, // inclure l’auteur après mise à jour
-        });
+    async update(id: number, updateVincentDto: UpdateVincentDto) {
+        try {
+            const updated = await this.prisma.photo.update({
+                where: { id },
+                data: updateVincentDto,
+                include: { author: true },
+            });
+            return updated;
+        } catch (e: any) {
+            if (e instanceof Prisma.PrismaClientKnownRequestError) {
+                if (e.code === 'P2002') throw new BadRequestException('Titre déjà utilisé');
+                if (e.code === 'P2025') throw new NotFoundException('Vincent introuvable');
+                throw new BadRequestException(`Erreur base de données (${e.code})`);
+            }
+            throw new BadRequestException('Mise à jour Vincent impossible');
+        }
     }
 
-    remove(id: number) {
-        return this.prisma.photo.delete({
-            where: { id },
-            include: { author: true }, // inclure l’auteur à la suppression si utile
-        });
+    async remove(id: number) {
+        try {
+            const deleted = await this.prisma.photo.delete({
+                where: { id },
+                include: { author: true },
+            });
+            return deleted;
+        } catch (e: any) {
+            if (e instanceof Prisma.PrismaClientKnownRequestError) {
+                if (e.code === 'P2025') throw new NotFoundException('Vincent introuvable');
+                throw new BadRequestException(`Erreur base de données (${e.code})`);
+            }
+            throw new BadRequestException('Suppression Vincent impossible');
+        }
     }
 }
