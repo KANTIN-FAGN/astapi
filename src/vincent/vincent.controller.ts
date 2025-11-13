@@ -38,8 +38,8 @@ export class VincentController {
         schema: {
             type: 'object',
             properties: {
-                title: { type: 'string', minLength: 5 },
-                description: { type: 'string', minLength: 10, nullable: true },
+                title: {type: 'string', minLength: 5},
+                description: {type: 'string', minLength: 10, nullable: true},
                 imagePath: {
                     type: 'string',
                     format: 'binary',
@@ -82,21 +82,30 @@ export class VincentController {
     }
 
     @Get()
+    @ApiResponse(SwaggerResponses.ErrorServer)
+    @ApiResponse({
+        status: 200,
+        description: 'Liste des Vincents',
+        type: [VincentEntity],
+    })
     findAll() {
         return this.vincentService.findAll();
     }
 
     @Get(':id')
+    @ApiResponse(SwaggerResponses.ErrorServer)
     findOne(@Param('id') id: string) {
         return this.vincentService.findOne(+id);
     }
 
     @Patch(':id')
+    @ApiResponse(SwaggerResponses.ErrorServer)
     update(@Param('id') id: string, @Body() updateVincentDto: UpdateVincentDto) {
         return this.vincentService.update(+id, updateVincentDto);
     }
 
     @Delete(':id')
+    @ApiResponse(SwaggerResponses.ErrorServer)
     remove(@Param('id') id: string) {
         return this.vincentService.remove(+id);
     }

@@ -61,7 +61,10 @@ export class VincentService {
     }
 
     update(id: number, updateVincentDto: UpdateVincentDto) {
-        return `This action updates a #${id} vincent`;
+        return this.prisma.photo.update({
+            where: { id },
+            data: updateVincentDto,
+        });
     }
 
     remove(id: number) {
