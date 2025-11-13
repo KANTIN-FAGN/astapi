@@ -8,7 +8,7 @@ import {
     Delete,
     UseInterceptors,
     UploadedFile,
-    BadRequestException, ParseIntPipe
+    BadRequestException, ParseIntPipe, UseGuards
 } from '@nestjs/common';
 import {diskStorage} from 'multer';
 import {VincentService} from './vincent.service';
@@ -16,10 +16,11 @@ import {CreateVincentDto} from './dto/create-vincent.dto';
 import {UpdateVincentDto} from './dto/update-vincent.dto';
 import {extname} from "path";
 import {FileInterceptor} from "@nestjs/platform-express";
-import {ApiBody, ApiConsumes, ApiCreatedResponse, ApiResponse, ApiTags} from "@nestjs/swagger";
+import {ApiBearerAuth, ApiBody, ApiConsumes, ApiCreatedResponse, ApiResponse, ApiTags} from "@nestjs/swagger";
 import {VincentEntity} from "./entities/vincent.entity";
 import {ERROR} from "../common/contants/error.constants";
 import {SwaggerResponses} from "../common/contants/swagger.constants";
+import {JwtAuthGuard} from "../auth/jwt-auth.guard";
 
 @Controller('vincent')
 @ApiTags('vincent')
@@ -29,6 +30,8 @@ export class VincentController {
 
     @Post()
     @ApiResponse(SwaggerResponses.ErrorServer)
+    @UseGuards(JwtAuthGuard)
+    @ApiBearerAuth()
     @ApiCreatedResponse({
         type: VincentEntity,
         description: 'Vincent successfully created.',
@@ -105,6 +108,8 @@ export class VincentController {
     }
 
     @Patch(':id')
+    @UseGuards(JwtAuthGuard)
+    @ApiBearerAuth()
     @ApiResponse(SwaggerResponses.ErrorServer)
     async update(
         @Param('id', ParseIntPipe) id: number,
@@ -116,6 +121,8 @@ export class VincentController {
     }
 
     @Delete(':id')
+    @UseGuards(JwtAuthGuard)
+    @ApiBearerAuth()
     @ApiResponse(SwaggerResponses.ErrorServer)
     async remove(@Param('id', ParseIntPipe) id: number) {
         return new VincentEntity(await this.vincentService.remove(id));
