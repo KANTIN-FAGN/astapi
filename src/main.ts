@@ -8,6 +8,13 @@ import {ClassSerializerInterceptor, ValidationPipe} from '@nestjs/common';
 async function bootstrap() {
     const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
+    app.enableCors({
+        origin: ['http://localhost:3000', 'http://localhost:4200'],
+        credentials: true,
+        methods: ['GET','POST','PATCH','DELETE','PUT','OPTIONS'],
+        allowedHeaders: ['Content-Type','Authorization'],
+    });
+
     app.setGlobalPrefix('api/v1');
 
     app.useStaticAssets(join(process.cwd(), 'uploads'), {
