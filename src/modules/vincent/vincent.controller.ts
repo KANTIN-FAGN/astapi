@@ -18,8 +18,8 @@ import {extname} from "path";
 import {FileInterceptor} from "@nestjs/platform-express";
 import {ApiBearerAuth, ApiBody, ApiConsumes, ApiCreatedResponse, ApiResponse, ApiTags} from "@nestjs/swagger";
 import {VincentEntity} from "./entities/vincent.entity";
-import {ERROR} from "../common/contants/error.constants";
-import {SwaggerResponses} from "../common/contants/swagger.constants";
+import {ERROR} from "../../common/contants/error.constants";
+import {SwaggerResponses} from "../../common/contants/swagger.constants";
 import {JwtAuthGuard} from "../auth/jwt-auth.guard";
 
 @Controller('vincent')

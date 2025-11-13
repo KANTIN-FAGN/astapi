@@ -1,5 +1,5 @@
 import { AuthEntity } from './entity/auth.entity';
-import { PrismaService } from '../prisma/prisma.service';
+import { PrismaService } from '../../prisma/prisma.service';
 import {
     Injectable,
     NotFoundException,
