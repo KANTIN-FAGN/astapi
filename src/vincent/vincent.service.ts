@@ -44,6 +44,7 @@ export class VincentService {
                     description,
                     imagePath: '/uploads/vincent/' + file.filename,
                 },
+                include: { author: true }, // inclure l’auteur dans la réponse de création
             });
 
             return article;
@@ -53,21 +54,30 @@ export class VincentService {
     }
 
     findAll() {
-        return this.prisma.photo.findMany();
+        return this.prisma.photo.findMany({
+            include: { author: true }, // inclure l’auteur pour la liste
+        });
     }
 
     findOne(id: number) {
-        return this.prisma.photo.findUnique({where: {id}});
+        return this.prisma.photo.findUnique({
+            where: { id },
+            include: { author: true }, // inclure l’auteur pour le détail
+        });
     }
 
     update(id: number, updateVincentDto: UpdateVincentDto) {
         return this.prisma.photo.update({
             where: { id },
             data: updateVincentDto,
+            include: { author: true }, // inclure l’auteur après mise à jour
         });
     }
 
     remove(id: number) {
-        return this.prisma.photo.delete({where: {id}});
+        return this.prisma.photo.delete({
+            where: { id },
+            include: { author: true }, // inclure l’auteur à la suppression si utile
+        });
     }
 }

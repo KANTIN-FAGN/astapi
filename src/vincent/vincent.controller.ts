@@ -8,7 +8,7 @@ import {
     Delete,
     UseInterceptors,
     UploadedFile,
-    BadRequestException
+    BadRequestException, ParseIntPipe
 } from '@nestjs/common';
 import {diskStorage} from 'multer';
 import {VincentService} from './vincent.service';
@@ -88,25 +88,35 @@ export class VincentController {
         description: 'Liste des Vincents',
         type: [VincentEntity],
     })
-    findAll() {
-        return this.vincentService.findAll();
+    async findAll() {
+        const articles = await this.vincentService.findAll();
+        return articles.map((article) => new VincentEntity(article));
     }
 
     @Get(':id')
     @ApiResponse(SwaggerResponses.ErrorServer)
-    findOne(@Param('id') id: string) {
-        return this.vincentService.findOne(+id);
+    async findOne(@Param('id', ParseIntPipe) id: number) {
+        const photo = await this.vincentService.findOne(id);
+        if (!photo) {
+            return null;
+        }
+        return photo
     }
 
     @Patch(':id')
     @ApiResponse(SwaggerResponses.ErrorServer)
-    update(@Param('id') id: string, @Body() updateVincentDto: UpdateVincentDto) {
-        return this.vincentService.update(+id, updateVincentDto);
+    async update(
+        @Param('id', ParseIntPipe) id: number,
+        @Body() updateArticleDto: UpdateVincentDto,
+    ) {
+        return new VincentEntity(
+            await this.vincentService.update(id, updateArticleDto),
+        );
     }
 
     @Delete(':id')
     @ApiResponse(SwaggerResponses.ErrorServer)
-    remove(@Param('id') id: string) {
-        return this.vincentService.remove(+id);
+    async remove(@Param('id', ParseIntPipe) id: number) {
+        return new VincentEntity(await this.vincentService.remove(id));
     }
 }

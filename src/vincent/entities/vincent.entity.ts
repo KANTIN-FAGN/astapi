@@ -1,10 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
+import {UserEntity} from "../../users/entities/user.entity";
 
 export class VincentEntity {
-    constructor(data: Partial<VincentEntity>) {
-        Object.assign(this, data);
-    }
-
     @ApiProperty()
     id: number;
 
@@ -16,4 +13,21 @@ export class VincentEntity {
 
     @ApiProperty({ nullable: true })
     description: string | null;
+
+    @ApiProperty({ required: false, nullable: true })
+    authorId: number | null;
+
+    @ApiProperty({ required: false, type: UserEntity, nullable: true })
+    author?: UserEntity | null;
+
+    constructor(input: Partial<VincentEntity> & { author?: UserEntity | null }) {
+        const { author, ...data } = input ?? {};
+        Object.assign(this, data);
+
+        if (author) {
+            this.author = new UserEntity(author);
+        } else {
+            this.author = null;
+        }
+    }
 }
