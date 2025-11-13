@@ -1,98 +1,294 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# ASTAPI — README
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+Un projet **NestJS + Prisma + PostgreSQL (Docker)**, prêt pour le développement local avec **Swagger**, **Auth JWT**, **CORS**, **upload de fichiers**, et **migrations propres**.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+---
 
-## Description
+## Sommaire
+- [Prérequis](#prérequis)
+- [Installation](#installation)
+- [Configuration .env](#configuration-env)
+- [Docker (PostgreSQL)](#docker-postgresql)
+- [Prisma](#prisma)
+- [Lancement de l'API](#lancement-de-lapi)
+- [CORS](#cors)
+- [Swagger (API docs)](#swagger-api-docs)
+- [Uploads](#uploads)
+- [Commandes utiles](#commandes-utiles)
+- [Arborescence](#arborescence)
+- [Dépannage](#dépannage)
+- [Scripts npm](#scripts-npm)
+- [Notes finales](#notes-finales)
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+---
 
-## Project setup
+## Prérequis
+- Node.js **18+**
+- npm **9+**
+- Docker et Docker Compose
+- Port libre pour l'API : **3000**
+- Port libre pour PostgreSQL : **5432** (ou personnalisé)
 
+---
+
+## Installation
+
+### 1. Cloner le repo
 ```bash
-$ npm install
+git clone <repo-url> && cd astapi
 ```
 
-## Compile and run the project
-
+### 2. Installer les dépendances
 ```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+npm install
 ```
 
-## Run tests
+---
 
-```bash
-# unit tests
-$ npm run test
+## Configuration .env
 
-# e2e tests
-$ npm run test:e2e
+Créer un fichier `.env` à la racine du projet.
 
-# test coverage
-$ npm run test:cov
+**Exemple pour Postgres local dans Docker :**
+
+```env
+DATABASE_URL="postgresql://astapi:password@localhost:5432/astapi-db?schema=public"
+PORT=3000
+JWT_SECRET=changeme-super-secret
+JWT_EXPIRES_IN=1d
+NODE_ENV=development
 ```
 
-## Deployment
+**Notes :**
+- `DATABASE_URL` : adapte `user`, `password`, `host`, `port`, `dbname`.
+- Si tu utilises un autre port Postgres dans Docker (ex: `5433`), change `localhost:5433`.
+- `JWT_SECRET` : utilise un secret fort en production.
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+---
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+## Docker (PostgreSQL)
 
-```bash
-$ npm install -g mau
-$ mau deploy
+### docker-compose.yml minimal recommandé
+
+```yaml
+version: '3.8'
+services:
+  postgres:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=astapi
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=astapi-db
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+volumes:
+  pgdata:
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+### Commandes Docker
 
-## Resources
+```bash
+# Démarrer
+docker compose up -d
 
-Check out a few resources that may come in handy when working with NestJS:
+# Logs
+docker compose logs -f postgres
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+# Stopper
+docker compose down
 
-## Support
+# Supprimer avec volumes
+docker compose down -v
+```
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+---
 
-## Stay in touch
+## Prisma
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+### Générer le client
+```bash
+npx prisma generate
+```
 
-## License
+### Créer une migration depuis le schéma
+```bash
+npx prisma migrate dev --name "init"
+```
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+### Appliquer l'état du schéma sans migration (dev uniquement)
+```bash
+npx prisma db push
+```
+
+### Reset complet (drop + migrations + seed)
+```bash
+npx prisma migrate reset
+```
+
+### Seed (remplir la base de données)
+```bash
+npx prisma db seed
+# ou directement :
+ts-node prisma/seed.ts
+```
+
+### Studio (UI pour la base)
+```bash
+npx prisma studio
+```
+
+---
+
+## Lancement de l'API
+
+### En mode développement (watch)
+```bash
+npm run start:dev
+```
+
+### Build et prod locale
+```bash
+npm run build
+npm run start:prod
+```
+
+---
+
+## CORS
+
+Activé dans `main.ts`.
+
+Par défaut :
+
+```typescript
+origin: 'http://localhost:3000'
+```
+
+Adapte si ton front tourne sur un autre port/origine.
+
+---
+
+## Swagger (API docs)
+
+- **UI** : [http://localhost:3000/api/v1](http://localhost:3000/api/v1)
+- Les endpoints sont préfixés : `/api/v1`
+- Exemple : `/api/v1/users`
+
+---
+
+## Uploads
+
+- Dossier `uploads/` servi statiquement avec préfixe `/uploads/`
+- Endpoints d'upload consomment `multipart/form-data`
+- Swagger affiche un champ `file` (format : `binary`)
+
+---
+
+## Commandes utiles
+
+| Action | Commande |
+|--------|----------|
+| Installer | `npm install` |
+| Lancer Postgres (Docker) | `docker compose up -d` |
+| Générer Prisma | `npx prisma generate` |
+| Migrer | `npx prisma migrate dev --name ""` |
+| Reset DB | `npx prisma migrate reset` |
+| Seed | `npx prisma db seed` |
+| Studio | `npx prisma studio` |
+| Dev | `npm run start:dev` |
+| Build | `npm run build` |
+| Prod | `npm run start:prod` |
+| Lint | `npm run lint` |
+| Tests | `npm test` |
+
+---
+
+## Arborescence
+
+```
+prisma/
+  schema.prisma
+  seed.ts
+  migrations/
+src/
+  main.ts
+  modules/
+    users/
+    vincent/
+    auth/
+    common/
+uploads/   # généré au runtime
+```
+
+---
+
+## Dépannage
+
+### Prisma "DATABASE_URL missing"
+- Vérifie que `.env` est présent à la racine et correct.
+- Si tu utilises `prisma.config.ts`, Prisma peut ignorer `.env`.
+- Exporte `DATABASE_URL` dans l'environnement ou configure Prisma explicitement.
+
+### Drift detected / migrations manquantes
+```bash
+npx prisma migrate reset
+```
+
+### Types incohérents (string vs number)
+```bash
+npx prisma generate
+```
+Redémarre Nest :
+```bash
+npm run start:dev
+```
+
+### Connexion refusée à Postgres
+- Vérifie les ports : `docker compose ps`
+- Vérifie `DATABASE_URL` (host/port/user/password/db)
+
+### Swagger ne s'affiche pas
+- URL : [http://localhost:3000/api/v1](http://localhost:3000/api/v1)
+- Vérifie que l'app écoute sur le bon port
+
+### CORS
+Ajuste dans :
+```typescript
+app.enableCors({ origin: [...] })
+```
+
+---
+
+## Scripts npm
+
+Exemples (à adapter selon `package.json`) :
+
+```json
+{
+  "start": "nest start",
+  "start:dev": "nest start --watch",
+  "start:prod": "node dist/main.js",
+  "build": "nest build",
+  "lint": "eslint .",
+  "test": "jest",
+  "prisma:generate": "prisma generate",
+  "prisma:migrate": "prisma migrate dev",
+  "prisma:reset": "prisma migrate reset",
+  "prisma:studio": "prisma studio",
+  "db:up": "docker compose up -d",
+  "db:down": "docker compose down"
+}
+```
+
+---
+
+## Notes finales
+
+- En dev : privilégie `migrate dev` et `migrate reset` plutôt que `db push` pour garder un historique propre.
+- Après toute modif du schéma Prisma : exécute `npx prisma generate` puis redémarre le serveur TS si nécessaire.
+- Pense à sécuriser `JWT_SECRET` et `CORS` avant toute mise en production.
+
+**Bonne dev !**
