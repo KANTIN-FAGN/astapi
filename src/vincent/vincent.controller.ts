@@ -16,12 +16,13 @@ import {CreateVincentDto} from './dto/create-vincent.dto';
 import {UpdateVincentDto} from './dto/update-vincent.dto';
 import {extname} from "path";
 import {FileInterceptor} from "@nestjs/platform-express";
-import {ApiBody, ApiConsumes, ApiCreatedResponse, ApiResponse} from "@nestjs/swagger";
+import {ApiBody, ApiConsumes, ApiCreatedResponse, ApiResponse, ApiTags} from "@nestjs/swagger";
 import {VincentEntity} from "./entities/vincent.entity";
 import {ERROR} from "../common/contants/error.constants";
 import {SwaggerResponses} from "../common/contants/swagger.constants";
 
 @Controller('vincent')
+@ApiTags('vincent')
 export class VincentController {
     constructor(private readonly vincentService: VincentService) {
     }

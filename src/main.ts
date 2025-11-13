@@ -20,6 +20,7 @@ async function bootstrap() {
         .setTitle('Astapi')
         .setDescription('The Asta API description')
         .setVersion('0.1')
+        .addBearerAuth()
         .build();
 
     const document = SwaggerModule.createDocument(app, config);
