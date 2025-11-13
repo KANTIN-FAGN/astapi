@@ -63,7 +63,10 @@ export class VincentService {
             this.prisma.photo.findMany({
                 skip,
                 take: LimitNum,
-                orderBy: { createdAt: 'desc' },
+                orderBy: { createdAt: 'asc' },
+                include: {
+                    author: true,
+                }
             }),
             this.prisma.photo.count(),
         ]);
