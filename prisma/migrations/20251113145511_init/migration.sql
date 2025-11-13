@@ -6,14 +6,14 @@ CREATE TABLE "Photo" (
     "description" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
-    "authorId" INTEGER,
+    "authorId" TEXT,
 
     CONSTRAINT "Photo_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "User" (
-    "id" SERIAL NOT NULL,
+    "id" TEXT NOT NULL,
     "name" TEXT,
     "email" TEXT NOT NULL,
     "password" TEXT NOT NULL,

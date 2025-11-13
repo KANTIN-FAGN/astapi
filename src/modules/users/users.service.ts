@@ -37,7 +37,7 @@ export class UsersService {
         }
     }
 
-    async findOne(id: number) {
+    async findOne(id: string) {
         try {
             const user = await this.prisma.user.findUnique({ where: { id } });
             if (!user) throw new NotFoundException('Utilisateur introuvable');
@@ -48,7 +48,7 @@ export class UsersService {
         }
     }
 
-    async update(id: number, updateUserDto: UpdateUserDto) {
+    async update(id: string, updateUserDto: UpdateUserDto) {
         try {
             if (updateUserDto.password) {
                 updateUserDto.password = await bcrypt.hash(updateUserDto.password, roundsOfHashing);
@@ -67,7 +67,7 @@ export class UsersService {
         }
     }
 
-    async remove(id: number) {
+    async remove(id: string) {
         try {
             return await this.prisma.user.delete({ where: { id } });
         } catch (e: any) {
