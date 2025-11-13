@@ -8,6 +8,8 @@ import {ClassSerializerInterceptor, ValidationPipe} from '@nestjs/common';
 async function bootstrap() {
     const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
+    app.setGlobalPrefix('api/v1');
+
     app.useStaticAssets(join(process.cwd(), 'uploads'), {
         prefix: '/uploads/',
     });
