@@ -53,10 +53,22 @@ export class VincentService {
         }
     }
 
-    findAll() {
-        return this.prisma.photo.findMany({
-            include: { author: true }, // inclure l’auteur pour la liste
-        });
+    async findAll(page: number, limit: number) {
+        const skip = (page - 1) * limit;
+
+        const LimitNum = Number(limit);
+
+
+        const [data, total] = await this.prisma.$transaction([
+            this.prisma.photo.findMany({
+                skip,
+                take: LimitNum,
+                orderBy: { createdAt: 'desc' },
+            }),
+            this.prisma.photo.count(),
+        ]);
+
+        return { data, total };
     }
 
     findOne(id: number) {

@@ -8,7 +8,7 @@ import {
     Delete,
     UseInterceptors,
     UploadedFile,
-    BadRequestException, ParseIntPipe, UseGuards
+    BadRequestException, ParseIntPipe, UseGuards, Query
 } from '@nestjs/common';
 import {diskStorage} from 'multer';
 import {VincentService} from './vincent.service';
@@ -16,7 +16,7 @@ import {CreateVincentDto} from './dto/create-vincent.dto';
 import {UpdateVincentDto} from './dto/update-vincent.dto';
 import {extname} from "path";
 import {FileInterceptor} from "@nestjs/platform-express";
-import {ApiBearerAuth, ApiBody, ApiConsumes, ApiCreatedResponse, ApiResponse, ApiTags} from "@nestjs/swagger";
+import {ApiBearerAuth, ApiBody, ApiConsumes, ApiCreatedResponse, ApiQuery, ApiResponse, ApiTags} from "@nestjs/swagger";
 import {VincentEntity} from "./entities/vincent.entity";
 import {ERROR} from "../../common/contants/error.constants";
 import {SwaggerResponses} from "../../common/contants/swagger.constants";
@@ -92,10 +92,22 @@ export class VincentController {
         description: 'Liste des Vincents',
         type: [VincentEntity],
     })
-    async findAll() {
-        const articles = await this.vincentService.findAll();
-        return articles.map((article) => new VincentEntity(article));
-    }
+    @ApiQuery({name: 'page', required: false, type: Number, example: 1})
+    @ApiQuery({name: 'limit', required: false, type: Number, example: 10})
+    async findAll(
+        @Query('page') page: number = 1,
+        @Query('limit') limit: number = 10,
+    ) {
+        const {data, total} = await this.vincentService.findAll(page, limit);
+        return {
+            vincents: data.map((vincent) => new VincentEntity(vincent)),
+            meta: {
+                total,
+                page,
+                limit,
+                totalPages: Math.ceil(total / limit),
+            },
+        };    }
 
     @Get(':id')
     @ApiResponse(SwaggerResponses.ErrorServer)
