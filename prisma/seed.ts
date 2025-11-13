@@ -30,7 +30,7 @@ async function main() {
         },
         create: {
             email: 'kantin.fagniart@ynov.com',
-            name: 'Fantin FAGNIART',
+            name: 'Kantin FAGNIART',
             password: passwordKantin,
         },
     });

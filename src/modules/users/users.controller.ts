@@ -23,14 +23,14 @@ export class UsersController {
     }
 
     @Post()
+    @UseGuards(JwtAuthGuard)
+    @ApiBearerAuth()
     @ApiCreatedResponse({type: UserEntity})
     async create(@Body() createUserDto: CreateUserDto) {
         return new UserEntity(await this.usersService.create(createUserDto));
     }
 
     @Get()
-    @UseGuards(JwtAuthGuard)
-    @ApiBearerAuth()
     @ApiOkResponse({type: UserEntity, isArray: true})
     async findAll() {
         const users = await this.usersService.findAll();
@@ -38,8 +38,6 @@ export class UsersController {
     }
 
     @Get(':id')
-    @UseGuards(JwtAuthGuard)
-    @ApiBearerAuth()
     @ApiOkResponse({type: UserEntity})
     async findOne(@Param('id', ParseIntPipe) id: number) {
         const user = await this.usersService.findOne(id);
