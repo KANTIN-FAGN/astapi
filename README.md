@@ -35,7 +35,8 @@ Un projet **NestJS + Prisma + PostgreSQL (Docker)**, prêt pour le développemen
 
 ### 1. Cloner le repo
 ```bash
-git clone <repo-url> && cd astapi
+git clone https://github.com/KANTIN-FAGN/astapi.git
+cd astapi
 ```
 
 ### 2. Installer les dépendances
