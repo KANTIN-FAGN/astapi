@@ -214,11 +214,11 @@ prisma/
   migrations/
 src/
   main.ts
+  common/
   modules/
     users/
     vincent/
     auth/
-    common/
 uploads/   # généré au runtime
 ```
 
