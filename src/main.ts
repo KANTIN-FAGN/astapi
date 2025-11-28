@@ -30,48 +30,17 @@ async function bootstrap() {
     const config = new DocumentBuilder()
         .setTitle('ASTAPI')
         .setDescription(`
-            API RESTful pour la gestion complète d'une application web moderne.
-            
-            Cette API fournit les fonctionnalités suivantes :
-            • Authentification et autorisation sécurisées via JWT
-            • Gestion des utilisateurs et des profils
-            • Upload et gestion des fichiers médias
-            • Endpoints CRUD complets avec validation des données
-            • Support CORS pour les applications front-end
-            
-            **Base URL:** http://localhost:3000/api/v1
-            
-            **Authentification:** 
-            Utilisez le token Bearer JWT dans l'en-tête Authorization pour accéder aux endpoints protégés.
-            
-            **Format des réponses:** JSON
-            
-            **Gestion des erreurs:** 
-            Les erreurs sont retournées avec des codes HTTP appropriés et des messages détaillés.
+        🎭 API de partage de photos drôles et surprenantes
+        
+        Bienvenue sur ASTAPI, votre plateforme dédiée aux moments hilarants et inattendus capturés en images !
         `)
         .setVersion('0.1')
-        .addBearerAuth(
-            {
-                type: 'http',
-                scheme: 'bearer',
-                bearerFormat: 'JWT',
-                name: 'JWT',
-                description: 'Entrez votre token JWT',
-                in: 'header',
-            },
-            'JWT-auth',
-        )
-        .addTag('Authentication', 'Endpoints pour l\'authentification et l\'autorisation')
-        .addTag('Users', 'Gestion des utilisateurs')
-        .addTag('Files', 'Upload et gestion des fichiers')
+        .addBearerAuth()
         .setContact(
             'Support API',
             'https://kantin-fagniart.vercel.app/',
             'kantin.fagniart@ynov.com'
         )
-        .setLicense('MIT', 'https://opensource.org/licenses/MIT')
-        .addServer('http://localhost:3000/api/v1', 'Serveur de développement')
-        .addServer('https://kantin.vitoderiu.com/api/v1', 'Serveur de production')
         .build();
 
     const document = SwaggerModule.createDocument(app, config);
