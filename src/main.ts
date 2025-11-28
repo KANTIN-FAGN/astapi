@@ -15,10 +15,12 @@ async function bootstrap() {
         allowedHeaders: ['Content-Type','Authorization'],
     });
 
-    app.setGlobalPrefix('api/v1');
+    app.setGlobalPrefix('api/v1', {
+        exclude: ['/api/v1/uploads/(.*)']
+    });
 
     app.useStaticAssets(join(process.cwd(), 'uploads'), {
-        prefix: '/uploads/',
+        prefix: '/api/v1/uploads/',
     });
 
     app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
