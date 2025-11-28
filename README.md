@@ -56,8 +56,6 @@ Créer un fichier `.env` à la racine du projet.
 DATABASE_URL="postgresql://astapi:password@localhost:5432/astapi-db?schema=public"
 PORT=3000
 JWT_SECRET=changeme-super-secret
-JWT_EXPIRES_IN=1d
-NODE_ENV=development
 ```
 
 **Notes :**
@@ -216,11 +214,11 @@ prisma/
   migrations/
 src/
   main.ts
+  common/
   modules/
     users/
     vincent/
     auth/
-    common/
 uploads/   # généré au runtime
 ```
 
