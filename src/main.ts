@@ -28,7 +28,7 @@ async function bootstrap() {
 
 
     const config = new DocumentBuilder()
-        .setTitle('Astapi')
+        .setTitle('ASTAPI')
         .setDescription('The Asta API description')
         .setVersion('0.1')
         .addBearerAuth()
