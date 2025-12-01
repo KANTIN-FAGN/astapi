@@ -1,5 +1,26 @@
+
 import { ApiProperty } from '@nestjs/swagger';
-import { UserEntity } from '../../users/entities/user.entity';
+
+export class AuthorEntity {
+    @ApiProperty()
+    id: string;
+
+    @ApiProperty()
+    createdAt: Date;
+
+    @ApiProperty()
+    updatedAt: Date;
+
+    @ApiProperty({ nullable: true })
+    name: string | null;
+
+    @ApiProperty()
+    email: string;
+
+    constructor(partial: Partial<AuthorEntity>) {
+        Object.assign(this, partial);
+    }
+}
 
 export class VincentEntity {
     @ApiProperty()
@@ -11,18 +32,28 @@ export class VincentEntity {
     @ApiProperty()
     imagePath: string;
 
-    @ApiProperty({ nullable: true })
+    @ApiProperty({ required: false, nullable: true })
     description: string | null;
 
-    @ApiProperty({ required: false, nullable: true })
-    authorId: string | null; // <- string, pas number
+    @ApiProperty({ nullable: true })
+    authorId: string | null;
 
-    @ApiProperty({ required: false, type: UserEntity, nullable: true })
-    author?: UserEntity | null;
+    @ApiProperty({ type: AuthorEntity, nullable: true, required: false })
+    author?: AuthorEntity | null;
 
-    constructor(input: Partial<VincentEntity> & { author?: Partial<UserEntity> | null }) {
-        const { author, ...data } = input ?? {};
-        Object.assign(this, data);
-        this.author = author ? new UserEntity(author as any) : null;
+    @ApiProperty()
+    createdAt: Date;
+
+    @ApiProperty()
+    updatedAt: Date;
+
+    constructor(partial: Partial<VincentEntity>) {
+        Object.assign(this, partial);
+        // Gérer le cas où author peut être null ou undefined
+        if (partial.author !== undefined && partial.author !== null) {
+            this.author = new AuthorEntity(partial.author as any);
+        } else {
+            this.author = partial.author as any;
+        }
     }
 }
