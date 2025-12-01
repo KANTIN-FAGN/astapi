@@ -43,7 +43,7 @@ async function main() {
         },
         create: {
             title: 'Smiling Vincent',
-            imagePath: '/uploads/vincent/vincent_1.png',
+            imagePath: 'https://kantin.vitoderiu.com/api/v1/uploads/vincent/vincent_1.png',
             description:
                 "We are excited to Vincent today's",
             authorId: user2.id,
@@ -57,7 +57,7 @@ async function main() {
         },
         create: {
             title: "Questioning Vincent",
-            imagePath: '/uploads/vincent/vincent_2.jpg',
+            imagePath: 'https://kantin.vitoderiu.com/api/v1/uploads/vincent/vincent_2.jpg',
             description:
                 'Learn with Vincent',
             authorId: user1.id,
