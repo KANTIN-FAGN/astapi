@@ -32,7 +32,7 @@ export class VincentService {
                 data: {
                     title,
                     description,
-                    imagePath: '/uploads/vincent/' + file.filename,
+                    imagePath: 'https://kantin.vitoderiu.com/api/v1/uploads/vincent/' + file.filename,
                 },
                 include: { author: true },
             });
